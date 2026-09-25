@@ -1,0 +1,29 @@
+### Verificar API
+GET http://localhost:3000
+
+### Listar produtos
+GET http://localhost:3000/produtos
+
+### Buscar produto por ID
+GET http://localhost:3000/produtos/1
+
+### Buscar produto inexistente
+GET http://localhost:3000/produtos/999
+
+### Criar produto
+POST http://localhost:3000/produtos
+Content-Type: application/json
+
+{
+  "nome": "Teclado",
+  "preco": 180
+}
+
+### Testar validação
+POST http://localhost:3000/produtos
+Content-Type: application/json
+
+{
+  "nome": "",
+  "preco": -10
+}
