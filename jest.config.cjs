@@ -2,6 +2,7 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
+  coverageProvider: 'v8',
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/routes/index.ts',
@@ -15,4 +16,4 @@ module.exports = {
       statements: 90
     }
   }
-};
+};

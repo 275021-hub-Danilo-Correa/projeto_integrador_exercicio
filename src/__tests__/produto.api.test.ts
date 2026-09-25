@@ -1,6 +1,7 @@
 import request from 'supertest';
 import app from '../App';
 import { sequelize, inicializarBanco } from '../database/database';
+import Produto from '../models/produto.model';
 
 beforeEach(async () => {
   await sequelize.sync({ force: true });
@@ -12,6 +13,22 @@ afterAll(async () => {
 });
 
 describe('CRUD de produtos', () => {
+  it('responde a rota raiz da API', async () => {
+    const resposta = await request(app).get('/');
+    expect(resposta.status).toBe(200);
+    expect(resposta.body).toEqual({
+      mensagem: 'API de Produtos funcionando'
+    });
+  });
+
+  it('retorna 404 para rotas inexistentes', async () => {
+    const resposta = await request(app).get('/rota-inexistente');
+    expect(resposta.status).toBe(404);
+    expect(resposta.body).toEqual({
+      mensagem: 'Rota não encontrada'
+    });
+  });
+
   it('lista, busca e retorna erro para produto inexistente', async () => {
     const lista = await request(app).get('/produtos');
     expect(lista.status).toBe(200);
@@ -57,6 +74,20 @@ describe('CRUD de produtos', () => {
     expect(atualizado.status).toBe(200);
     expect(atualizado.body).toMatchObject({ nome: 'Notebook Pro', preco: 4500 });
 
+    const atualizadoParcialNome = await request(app)
+      .put('/produtos/1')
+      .send({ nome: 'Notebook Gamer' });
+
+    expect(atualizadoParcialNome.status).toBe(200);
+    expect(atualizadoParcialNome.body).toMatchObject({ nome: 'Notebook Gamer', preco: 4500 });
+
+    const atualizadoParcialPreco = await request(app)
+      .put('/produtos/1')
+      .send({ preco: 5000 });
+
+    expect(atualizadoParcialPreco.status).toBe(200);
+    expect(atualizadoParcialPreco.body).toMatchObject({ nome: 'Notebook Gamer', preco: 5000 });
+
     const inexistente = await request(app)
       .put('/produtos/999')
       .send({ nome: 'Produto', preco: 10 });
@@ -80,4 +111,13 @@ describe('CRUD de produtos', () => {
     const inexistente = await request(app).delete('/produtos/2');
     expect(inexistente.status).toBe(404);
   });
+
+  it('verifica método estaEmPromocao do modelo Produto', () => {
+    const produtoCaro = Produto.build({ nome: 'Cadeira Gamer', preco: 250 });
+    const produtoBarato = Produto.build({ nome: 'Mousepad', preco: 49.9 });
+
+    expect(produtoCaro.estaEmPromocao()).toBe(false);
+    expect(produtoBarato.estaEmPromocao()).toBe(true);
+  });
 });
+
